@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo dos Meios de Comunicação</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap');
+
+:root {
+  --ceu: #0EA5E9;
+  --ceu-escuro: #0369A1;
+  --amarelo: #FBBF24;
+  --amarelo-escuro: #D97706;
+  --verde: #10B981;
+  --verde-escuro: #047857;
+  --vermelho: #EF4444;
+  --vermelho-escuro: #B91C1C;
+  --roxo: #8B5CF6;
+  --laranja: #F97316;
+  --fundo: #F0F9FF;
+  --texto: #1E3A5F;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Baloo 2', cursive;
+  background: var(--fundo);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #BAE6FD 0%, #E0F2FE 55%, #F0F9FF 100%);
+  z-index: 0;
+}
+
+.cloud {
+  position: fixed;
+  background: white;
+  border-radius: 50px;
+  opacity: 0.7;
+  z-index: 0;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
+.c1 { width: 100px; height: 35px; top: 8%; left: -120px; animation: mover-nuvem 22s linear infinite; }
+.c1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+.c1::after  { width: 35px; height: 35px; top: -15px; left: 45px; }
+.c2 { width: 140px; height: 45px; top: 18%; left: -160px; animation: mover-nuvem 30s linear infinite 8s; }
+.c2::before { width: 70px; height: 70px; top: -35px; left: 20px; }
+.c2::after  { width: 50px; height: 50px; top: -25px; left: 65px; }
+.c3 { width: 80px; height: 28px; top: 5%; left: -100px; animation: mover-nuvem 18s linear infinite 4s; }
+.c3::before { width: 40px; height: 40px; top: -18px; left: 12px; }
+.c3::after  { width: 28px; height: 28px; top: -10px; left: 36px; }
+@keyframes mover-nuvem {
+  from { left: -200px; }
+  to   { left: 110vw; }
+}
+
+.bird {
+  position: fixed;
+  font-size: 22px;
+  z-index: 0;
+  animation: voar 18s linear infinite;
+  opacity: 0.6;
+}
+.bird:nth-child(1) { top: 12%; animation-delay: 0s; }
+.bird:nth-child(2) { top: 22%; animation-delay: 6s; font-size: 16px; }
+@keyframes voar {
+  from { left: -60px; }
+  to   { left: 110vw; }
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 30px;
+}
+
+.header {
+  width: 100%;
+  background: var(--ceu-escuro);
+  padding: 14px 20px;
+  text-align: center;
+  box-shadow: 0 5px 0 #075985;
+  position: relative;
+}
+.header-title {
+  font-size: 22px;
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 #075985;
+}
+
+.score-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: white;
+  border-radius: 20px;
+  padding: 10px 22px;
+  margin: 14px 16px 0;
+  box-shadow: 0 4px 0 #BAE6FD;
+  border: 3px solid #BAE6FD;
+  width: calc(100% - 32px);
+  max-width: 560px;
+  justify-content: space-between;
+}
+.score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.score-label {
+  font-size: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: #94A3B8;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.score-val {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+}
+.score-val.green { color: var(--verde); }
+.score-val.red   { color: var(--vermelho); }
+
+/* PROGRESS PILLS */
+.progress-pills {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.pill {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  border: 2px solid #CBD5E1;
+  transition: all .3s;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: transparent;
+}
+.pill.certo { background: var(--verde); border-color: var(--verde-escuro); color: white; }
+
+/* INSTRUÇÃO */
+.instrucao {
+  background: var(--amarelo);
+  border: 3px solid var(--amarelo-escuro);
+  border-radius: 18px;
+  padding: 11px 18px;
+  margin: 12px 16px 0;
+  max-width: 560px;
+  width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 0 var(--amarelo-escuro);
+}
+.instrucao p { font-size: 15px; color: #78350F; font-weight: 700; line-height: 1.3; }
+
+.restante {
+  font-size: 13px;
+  color: var(--ceu-escuro);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 12px 16px 0;
+  max-width: 560px;
+  width: 100%;
+}
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 20px;
+  border: 4px solid #E2E8F0;
+  padding: 12px 8px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s, background .25s, opacity .25s;
+  box-shadow: 0 5px 0 #E2E8F0;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.card:not(.usado):hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 9px 0 #CBD5E1;
+  border-color: var(--ceu);
+}
+.card:not(.usado):active { transform: scale(0.94); }
+
+.card.usado { cursor: default; pointer-events: none; }
+
+/* Acertou: fundo verde suave, borda verde, não apaga */
+.card.acertou {
+  border-color: var(--verde);
+  background: #DCFCE7;
+  box-shadow: 0 5px 0 var(--verde-escuro);
+  animation: pulso-verde .4s ease;
+}
+
+/* Errou: fica acinzentado */
+.card.errou {
+  border-color: var(--vermelho);
+  background: #FEE2E2;
+  box-shadow: 0 5px 0 var(--vermelho-escuro);
+  opacity: 0.55;
+  animation: shake .4s ease;
+}
+
+@keyframes pulso-verde {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-8px) rotate(-3deg); }
+  40%     { transform: translateX(8px) rotate(3deg); }
+  60%     { transform: translateX(-5px); }
+  80%     { transform: translateX(5px); }
+}
+
+.card-emoji { font-size: 44px; line-height: 1; display: block; margin-bottom: 6px; }
+.card-nome  { font-size: 12px; font-family: 'Nunito', sans-serif; font-weight: 800; color: var(--texto); line-height: 1.2; }
+
+/* BADGE V / X  — grande, centrado em cima do emoji */
+.badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  font-size: 52px;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 2px 8px rgba(0,0,0,.15);
+  animation: badge-pop .35s cubic-bezier(.4,2,.6,1);
+}
+@keyframes badge-pop {
+  from { transform: translate(-50%, -60%) scale(0); }
+  to   { transform: translate(-50%, -60%) scale(1); }
+}
+
+/* TELA FINAL */
+.tela-final {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.tela-final.show { display: flex; }
+.final-box {
+  background: white;
+  border-radius: 32px;
+  padding: 32px 28px;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  animation: aparecer .5s cubic-bezier(.4,2,.6,1);
+}
+@keyframes aparecer {
+  from { opacity: 0; transform: scale(.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.final-estrelas { font-size: 38px; letter-spacing: 4px; margin-bottom: 8px; }
+.final-titulo   { font-size: 30px; font-weight: 900; color: var(--texto); margin-bottom: 16px; }
+
+.nota-circulo {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 7px solid var(--verde);
+  background: #ECFDF5;
+}
+.nota-num { font-size: 60px; font-weight: 900; line-height: 1; color: var(--verde); }
+.nota-den { font-size: 16px; font-weight: 800; color: #64748B; }
+
+.nota-detalhe {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  background: #F8FAFC;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.nota-detalhe .acertos-linha { color: var(--verde-escuro); font-weight: 800; }
+.nota-detalhe .erros-linha   { color: var(--vermelho);     font-weight: 800; }
+
+.final-btns { display: flex; flex-direction: column; gap: 8px; }
+.btn-jogar {
+  background: var(--ceu-escuro);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #075985;
+  transition: all .15s;
+}
+.btn-jogar:hover  { transform: translateY(-2px); }
+.btn-jogar:active { transform: translateY(3px); box-shadow: 0 1px 0 #075985; }
+
+/* CONFETTI */
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 14px;
+  top: -20px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: cai 2.5s ease-in forwards;
+  z-index: 300;
+  pointer-events: none;
+}
+@keyframes cai {
+  0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+footer {
+  background: var(--ceu-escuro);
+  color: #BAE6FD;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  width: 100%;
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+}
+footer span { color: var(--amarelo); }
+
+@media (max-width: 380px) {
+  .grid { gap: 8px; padding: 8px 10px 0; }
+  .card-emoji { font-size: 34px; }
+  .card-nome  { font-size: 10px; }
+  .badge { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="cloud c3"></div>
+<div class="bird">🐦</div>
+<div class="bird">🐦</div>
+
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-title">TRANSMISSÃO DE INFORMAÇÕES</div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-item">
+      <span class="score-label">✅ Certos</span>
+      <span class="score-val green" id="num-certos">0</span>
+    </div>
+    <div class="progress-pills" id="pills"></div>
+    <div class="score-item">
+      <span class="score-label">❌ Erros</span>
+      <span class="score-val red" id="num-erros">0</span>
+    </div>
+  </div>
+
+  <div class="instrucao">
+    <p>👆 CLIQUE NOS OBJETOS QUE SERVEM PARA ENVIAR MENSAGENS PARA LONGE!</p>
+  </div>
+
+  <div class="restante" id="restante-txt"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <br>
+
+</div>
+
+<footer>Material Pedagógico – <span>Profª Adriana Bett Terebinto</span></footer>
+
+<!-- TELA FINAL -->
+<div class="tela-final" id="tela-final">
+  <div class="final-box">
+    <div class="final-estrelas" id="final-estrelas">⭐⭐⭐⭐⭐</div>
+    <div class="final-titulo"   id="final-titulo">PARABÉNS!</div>
+    <div class="nota-circulo"   id="nota-circulo">
+      <span class="nota-num" id="nota-num">10</span>
+      <span class="nota-den">/ 10</span>
+    </div>
+    <div class="nota-detalhe" id="nota-detalhe"></div>
+    <div class="final-btns">
+      <button class="btn-jogar" onclick="reiniciar()">🔄 JOGAR NOVAMENTE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const OBJETOS = [
+  { emoji: "📱", nome: "CELULAR",       transmite: true  },
+  { emoji: "📺", nome: "TELEVISÃO",     transmite: true  },
+  { emoji: "📻", nome: "RÁDIO",         transmite: true  },
+  { emoji: "✉️", nome: "CARTA",         transmite: true  },
+  { emoji: "📰", nome: "JORNAL",        transmite: true  },
+  { emoji: "💻", nome: "COMPUTADOR",    transmite: true  },
+  { emoji: "☎️", nome: "TELEFONE",      transmite: true  },
+  { emoji: "📡", nome: "ANTENA",        transmite: true  },
+  { emoji: "📖", nome: "LIVRO",         transmite: true  },
+
+  { emoji: "🍎", nome: "MAÇÃ",          transmite: false },
+  { emoji: "🪑", nome: "CADEIRA",       transmite: false },
+  { emoji: "🌻", nome: "FLORES",        transmite: false },
+  { emoji: "👟", nome: "TÊNIS",         transmite: false },
+  { emoji: "🎒", nome: "MOCHILA",       transmite: false },
+  { emoji: "🌂", nome: "GUARDA-CHUVA",  transmite: false },
+  { emoji: "🥤", nome: "COPO",          transmite: false },
+  { emoji: "⚽", nome: "BOLA",          transmite: false },
+  { emoji: "💉", nome: "SERINGA",       transmite: false },
+  { emoji: "🧸", nome: "URSINHO",       transmite: false },
+];
+
+const MSGS_FINAIS = [
+  { min: 9,  max: 10, estrelas: "⭐⭐⭐⭐⭐", titulo: "PERFEITO!"     },
+  { min: 7,  max: 8,  estrelas: "⭐⭐⭐⭐",   titulo: "MUITO BEM!"   },
+  { min: 5,  max: 6,  estrelas: "⭐⭐⭐",     titulo: "PARABÉNS!"    },
+  { min: 0,  max: 4,  estrelas: "⭐⭐",       titulo: "TENTE MAIS!"  },
+];
+
+// Desconto por erro
+const DESCONTO_POR_ERRO = 1.0;
+
+let objetos = [], certos = 0, erros = 0, corretos_clicados = 0, total_corretos = 0;
+
+function embaralhar(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function iniciar() {
+  const corretos = embaralhar(OBJETOS.filter(o => o.transmite)).slice(0, 6);
+  const errados  = embaralhar(OBJETOS.filter(o => !o.transmite)).slice(0, 6);
+  objetos = embaralhar([...corretos, ...errados]);
+  total_corretos = corretos.length;
+  certos = 0; erros = 0; corretos_clicados = 0;
+
+  renderPills();
+  renderGrid();
+  atualizarPlacar();
+  atualizarRestante();
+}
+
+function renderPills() {
+  const pills = document.getElementById('pills');
+  pills.innerHTML = '';
+  for (let i = 0; i < total_corretos; i++) {
+    const d = document.createElement('div');
+    d.className = 'pill';
+    d.id = 'pill-' + i;
+    pills.appendChild(d);
+  }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  objetos.forEach((obj, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + idx;
+    card.innerHTML = `
+      <span class="card-emoji">${obj.emoji}</span>
+      <div class="card-nome">${obj.nome}</div>
+    `;
+    card.onclick = () => clicar(idx);
+    grid.appendChild(card);
+  });
+}
+
+function atualizarPlacar() {
+  document.getElementById('num-certos').textContent = certos;
+  document.getElementById('num-erros').textContent  = erros;
+}
+
+function atualizarRestante() {
+  const faltam = total_corretos - corretos_clicados;
+  const el = document.getElementById('restante-txt');
+  el.textContent = faltam > 0
+    ? `🔍 Ainda faltam ${faltam} meio${faltam > 1 ? 's' : ''} de comunicação!`
+    : '';
+}
+
+function clicar(idx) {
+  const card = document.getElementById('card-' + idx);
+  if (card.classList.contains('usado')) return;
+
+  const obj = objetos[idx];
+  card.classList.add('usado');
+
+  if (obj.transmite) {
+    certos++;
+    corretos_clicados++;
+    card.classList.add('acertou');
+
+    // badge ✔
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.textContent = '✔';
+    badge.style.color = '#15803D';
+    card.appendChild(badge);
+
+    // pill
+    const pill = document.getElementById('pill-' + (corretos_clicados - 1));
+    if (pill) { pill.classList.add('certo'); pill.textContent = '✔'; }
+
+    atualizarPlacar();
+    atualizarRestante();
+
+    if (corretos_clicados === total_corretos) {
+      setTimeout(mostrarFinal, 700);
+    }
+  } else {
+    erros++;
+    card.classList.add('errou');
+
+    // badge ✘
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.textContent = '✘';
+    badge.style.color = '#DC2626';
+    card.appendChild(badge);
+
+    atualizarPlacar();
+  }
+}
+
+function calcularNota() {
+  const base = (corretos_clicados / total_corretos) * 10;
+  const penalidade = erros * DESCONTO_POR_ERRO;
+  return Math.max(0, Math.round((base - penalidade) * 10) / 10);
+}
+
+function mostrarFinal() {
+  const nota = calcularNota();
+  const notaArred = Math.round(nota);
+  const cfg = MSGS_FINAIS.find(m => notaArred >= m.min && notaArred <= m.max) || MSGS_FINAIS[3];
+
+  document.getElementById('final-estrelas').textContent = cfg.estrelas;
+  document.getElementById('final-titulo').textContent   = cfg.titulo;
+
+  const notaStr = nota % 1 === 0 ? nota.toFixed(0) : nota.toFixed(1);
+  document.getElementById('nota-num').textContent = notaStr;
+
+  // Cor do círculo conforme nota
+  const circ  = document.getElementById('nota-circulo');
+  const numEl = document.getElementById('nota-num');
+  if (nota >= 7) {
+    circ.style.borderColor  = 'var(--verde)';
+    circ.style.background   = '#DCFCE7';
+    numEl.style.color       = 'var(--verde)';
+  } else if (nota >= 5) {
+    circ.style.borderColor  = 'var(--amarelo-escuro)';
+    circ.style.background   = '#FEF9C3';
+    numEl.style.color       = 'var(--amarelo-escuro)';
+  } else {
+    circ.style.borderColor  = 'var(--vermelho)';
+    circ.style.background   = '#FEE2E2';
+    numEl.style.color       = 'var(--vermelho)';
+  }
+
+  // Detalhe: acertos e desconto
+  const desconto = (erros * DESCONTO_POR_ERRO).toFixed(1).replace('.0','');
+  document.getElementById('nota-detalhe').innerHTML =
+    `<span class="acertos-linha">✅ Acertos: ${corretos_clicados} de ${total_corretos}</span><br>` +
+    `<span class="erros-linha">❌ Erros: ${erros} (−${desconto} ponto${erros !== 1 ? 's' : ''} por erro)</span>`;
+
+  document.getElementById('tela-final').classList.add('show');
+  if (nota >= 5) lancarConfetti();
+}
+
+function reiniciar() {
+  document.getElementById('tela-final').classList.remove('show');
+  iniciar();
+}
+
+function lancarConfetti() {
+  const cores = ['#FBBF24','#34D399','#60A5FA','#F472B6','#A78BFA','#FB923C'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = cores[Math.floor(Math.random() * cores.length)];
+      c.style.width  = (Math.random() * 8 + 6) + 'px';
+      c.style.height = (Math.random() * 10 + 8) + 'px';
+      c.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }, i * 50);
+  }
+}
+
+iniciar();
+</script>
+</body>
+</html>
